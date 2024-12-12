@@ -23,6 +23,7 @@ def get_current_filepath() -> str:
 def calculate_safe_reports(data_to_analyze: str) -> int:
     safe = 0
     first = True
+    prev_number = 0
 
     for i in data_to_analyze:
         list = i.strip('\n').split(' ')
@@ -37,12 +38,12 @@ def calculate_safe_reports(data_to_analyze: str) -> int:
                     prev_number = number
                     continue
                 diff = calculate_diff(number, prev_number)
-                if diff > 3:
-                    break
-                elif diff < 1:
+                print(diff)
+                if diff > 3 or diff < 1:
                     break
                 else:
-                    safe += 1
+                    prev_number = number
+            
     
     return safe
 
