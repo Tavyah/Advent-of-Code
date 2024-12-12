@@ -1,4 +1,10 @@
-import filehandler_helper as fh
+import sys
+import os
+
+# Legg til 'Modules'-mappen til sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Modules')))
+
+from filehandler_helper import *
 
 def main() -> None:
     file_content = reading_txt_data()
@@ -9,10 +15,13 @@ def main() -> None:
     print(calculate_total_distance(distances))
     print(similarity_score(left_list, right_list))
 
+def get_current_filepath() -> str:
+    return os.path.dirname(os.path.realpath(__file__))
+
 def reading_txt_data() -> str:
     filename = "locations_data.txt"
-    filepath = fh.get_current_filepath()
-    file_to_read = fh.get_path_of_file(filepath, filename)
+    filepath = get_current_filepath()
+    file_to_read = get_path_of_file(filepath, filename)
 
     file = open(file_to_read, "r", encoding='cp1252')
     file_content = file.readlines()
@@ -46,8 +55,8 @@ def calculate_total_distance(list: list) -> int:
         total += number
 
     answer_filename = 'answer_part_1.txt'
-    filepath = fh.get_current_filepath()
-    filename = fh.return_filepath_joined_with_file(filepath, answer_filename)
+    filepath = get_current_filepath()
+    filename = return_filepath_joined_with_file(filepath, answer_filename)
     with open(filename, 'w') as file:
         file.write(str(total))
 
@@ -65,8 +74,8 @@ def similarity_score(left_list: list, right_list: list) -> int:
             continue
 
     answer_filename = 'answer_part_2.txt'
-    filepath = fh.get_current_filepath()
-    filename = fh.return_filepath_joined_with_file(filepath, answer_filename)
+    filepath = get_current_filepath()
+    filename = return_filepath_joined_with_file(filepath, answer_filename)
     with open(filename, 'w') as file:
         file.write(str(similarity_score))
     return similarity_score

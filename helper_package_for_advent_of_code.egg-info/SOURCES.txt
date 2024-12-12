@@ -1,0 +1,6 @@
+README.md
+setup.py
+helper_package_for_advent_of_code.egg-info/PKG-INFO
+helper_package_for_advent_of_code.egg-info/SOURCES.txt
+helper_package_for_advent_of_code.egg-info/dependency_links.txt
+helper_package_for_advent_of_code.egg-info/top_level.txt
