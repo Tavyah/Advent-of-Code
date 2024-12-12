@@ -7,6 +7,7 @@ def main() -> None:
     right_list.sort()
     distances = find_distance_between_two_numbers(left_list, right_list)
     print(calculate_total_distance(distances))
+    print(similarity_score(left_list, right_list))
 
 def reading_txt_data() -> str:
     filename = "locations_data.txt"
@@ -51,6 +52,37 @@ def calculate_total_distance(list: list) -> int:
         file.write(str(total))
 
     return total
+
+def similarity_score(left_list: list, right_list: list) -> int:
+    occurences_in_right_list = return_unique_dict_with_occurences(right_list)
+    occurences_in_left_list = return_unique_dict_with_occurences(left_list)
+    unique_left_list = return_unique_list(left_list)
+    similarity_score = 0
+    for number in unique_left_list:
+        try:
+            similarity_score += ((number * occurences_in_left_list[number]) * occurences_in_right_list[number])
+        except KeyError:
+            continue
+
+    answer_filename = 'answer_part_2.txt'
+    filepath = fh.get_current_filepath()
+    filename = fh.return_filepath_joined_with_file(filepath, answer_filename)
+    with open(filename, 'w') as file:
+        file.write(str(similarity_score))
+    return similarity_score
+    
+def return_unique_dict_with_occurences(list: list) -> dict:
+    # Parsing the list so I find the unique values
+    list_unique_values = return_unique_list(list)
+
+    dict_with_how_many_unique_values_in_list = {}
+    for unique_value in list_unique_values:
+        dict_with_how_many_unique_values_in_list[unique_value] = list.count(unique_value)
+    
+    return dict_with_how_many_unique_values_in_list
+
+def return_unique_list(list: list) -> set:
+    return set(list)
 
 if __name__ == "__main__":
     main()
