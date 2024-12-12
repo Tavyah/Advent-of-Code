@@ -7,9 +7,8 @@ from web_browser_helper import *
 
 def main() -> None:
     url = 'https://adventofcode.com/2024/day/2/input'
-    Session = make_cookie(url)
-    respone = r.get(url)
-    print(respone.text)
-
+    body_of_website = scrape_input_site(url)
+    print(body_of_website)
+                                                                                                              
 if __name__ == "__main__":
     main()
