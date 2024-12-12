@@ -21,3 +21,16 @@ def scrape_input_site(url: str) -> str:
     cookies = make_cookie()
     response = r.get(url, cookies= cookies)
     return response.text
+
+def make_txt_file(content: str, name_of_file: str, filepath: str) -> None:
+    fp = fh.return_filepath_joined_with_file(filepath, name_of_file)
+    with open(fp, "w") as file:
+        file.write(content) 
+
+def reading_txt_data(filename: str, filepath: str) -> str:
+    file_to_read = fh.get_path_of_file(filepath, filename)
+
+    file = open(file_to_read, "r", encoding='cp1252')
+    file_content = file.readlines()
+    file.close()
+    return file_content
