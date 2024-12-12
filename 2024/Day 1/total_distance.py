@@ -1,5 +1,4 @@
 import filehandler_helper as fh
-import re
 
 def main() -> None:
     file_content = reading_txt_data()
@@ -44,6 +43,12 @@ def calculate_total_distance(list: list) -> int:
     total = 0
     for number in list:
         total += number
+
+    answer_filename = 'answer_part_1.txt'
+    filepath = fh.get_current_filepath()
+    filename = fh.return_filepath_joined_with_file(filepath, answer_filename)
+    with open(filename, 'w') as file:
+        file.write(str(total))
 
     return total
 
