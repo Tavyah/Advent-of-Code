@@ -12,8 +12,9 @@ def get_config_username_and_password(section_name: str, username_label: str, pas
     return db_username, db_password
 
 def make_cookie() -> dict:
+    name, value = get_config_username_and_password('cookie', 'name', 'value')
     my_cookie = {
-        "session": "53616c7465645f5f82c736dfc95f2427f503eafd80fa765c85b63910806af61baa5de38a70c168fb09516f3ac5017612a6bb5155a02af231f8b7668262d7935e"
+        name: value
     }
     return my_cookie
 
@@ -33,4 +34,4 @@ def reading_txt_data(filename: str, filepath: str) -> str:
     file = open(file_to_read, "r", encoding='cp1252')
     file_content = file.readlines()
     file.close()
-    return file_content
+    return str(file_content)

@@ -1,6 +1,4 @@
-import requests as r
 import sys, os
-import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Modules')))
 
@@ -12,7 +10,7 @@ def main() -> None:
     input_filename = 'input_data.txt'
     filepath = get_current_filepath()
 
-    body_of_website = scrape_input_site(url)
+    #body_of_website = scrape_input_site(url)
     #make_txt_file(body_of_website, input_filename, filepath()) 
 
     content_of_file = reading_txt_data(input_filename, filepath)
@@ -37,41 +35,41 @@ def calculate_safe_reports(data_to_analyze: str) -> int:
         list = i.strip('\n').split(' ')
         parsed_list = [int(number) for number in list]
 
+        last_index = len(parsed_list) - 1
+        current_index = -1
         #print(parsed_list)
 
         sorted_list = is_list_sorted(parsed_list)
+        unique_list = is_list_unique(parsed_list)
+        print(f"parsed: {parsed_list}")
         if sorted_list:
             amount_of_sorted_lists += 1
-        unique_list = is_list_unique(parsed_list)
+            #parsed_list, safe, first = remove_element_that_is_not_needed(parsed_list, last_index, current_index, safe, first)
+        else:
+            
+            if unique_list:
+                # Her ska æ sjekke alle de usorterte listene om de e sortert fra et visst element
+                for element in range(0, len(parsed_list)):
+                    if rest_of_list_is_sorted(element, parsed_list):
+                        parsed_list.pop(element)
+                        break
+                sorted_list = True
+                
+            else:
+                duplicate_location = find_location_of_duplicates(parsed_list)
+    
+                if duplicate_location is not None:
+                    parsed_list.pop(duplicate_location)
+                    unique_list = True
+                    
         if unique_list:
             amount_of_unique_lists += 1
-        # Part 2
-        else:
-            dict_with_duplicate_locations = find_location_of_duplicates(parsed_list)
-            print(f"Dict: {dict_with_duplicate_locations}")
-
-
-        last_index = len(parsed_list) - 1
-        current_index = -1
-
+        print(f"etter: {parsed_list}")
+        print(f"qualified: {unique_list} {sorted_list}")
         if sorted_list and unique_list:  
             qualified_list += 1
-            for number in parsed_list:
-                current_index += 1
+            safe, first = check_list_for_differance(parsed_list, last_index, current_index, prev_number, safe, first)
 
-                if first:
-                    first = False
-                    prev_number = number
-                    continue
-            
-                diff = calculate_diff(number, prev_number)
-                
-                if diff > 3 or diff < 1:
-                    break
-                else:
-                    if last_index == current_index:
-                        safe += 1
-                    prev_number = number
         first = True
         
     print(f"Number of lines analyzed: {lines_analyzed}/1000.")
@@ -94,10 +92,9 @@ def is_list_sorted(list: list) -> bool:
 def is_list_unique(list: list) -> bool:
     return len(list) == len(set(list))
 
-def find_location_of_duplicates(parsed_list: list) -> dict:
+def find_location_of_duplicates(parsed_list: list) -> int:
     first = True
     prev_number = 0
-    dict_with_locations = {}
 
     for i in range(0, len(parsed_list)):
         if first:
@@ -105,9 +102,36 @@ def find_location_of_duplicates(parsed_list: list) -> dict:
             first = False
             continue
         if prev_number == parsed_list[i]:
-            dict_with_locations[parsed_list[i]] = i
+            return i
+        
+def rest_of_list_is_sorted(element : int, parsed_list : list) -> bool:
+    temp_list = parsed_list[:]
+    temp_list.pop(element)
+    return is_list_sorted(temp_list)
+
+def remove_element_that_is_not_needed(parsed_list: list, last_index: int, current_index: int, safe: int, first: bool) -> list | int | bool:
     
-    return dict_with_locations
+    
+    return parsed_list, safe, first
+
+def check_list_for_differance(parsed_list: list, last_index: int, current_index: int, prev_number: int, safe: int, first: bool) -> int | bool:
+    for number in parsed_list:
+                current_index += 1
+
+                if first:
+                    first = False
+                    prev_number = number
+                    continue
+                
+                diff = calculate_diff(number, prev_number)
+                
+                if diff > 3 or diff < 1:
+                    parsed_list.pop(current_index)
+                else:
+                    if last_index == current_index:
+                        safe += 1
+                    prev_number = number
+    return safe, first
 
 if __name__ == "__main__":
     main()
