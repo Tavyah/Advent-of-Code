@@ -19,27 +19,30 @@ regex_string = "do\(\).*?don't\(\)"
 matches = re.findall(regex_string, text)
 #print(matches)
 
-do_matches = []
+regex_last_match = "don't\(\).*?do\(\).*"
+regex_last_matches = re.findall(regex_last_match, text)
+print(regex_last_matches[-1])
+_, last_match = regex_last_matches[-1].split('do()')
+print(last_match)
 
-# TODO: FIKSE sånn at den får riktig i lista, surrer fælt nu
+do_matches = []
 
 regex_do_string = "do\(\).*?do\(\)"
 for i in range(0, len(matches)):
     clean_matches = re.findall(regex_do_string, matches[i])
-    print(clean_matches)
     if not clean_matches:
         do_matches.append(matches[i])
     else:
         for j in clean_matches:
             do_matches.append(j)
 
-print(do_matches)
-
 total = 0
 
-regex_strip = 'mul\(\d+,\d+\)'
-first_mul = re.search(regex_strip, text)
+first_regex_mul = "mul\(\d+,\d+\).*?don't\(\)"
+first_mul = re.search(first_regex_mul, text)
 do_matches.append(first_mul.group())
+
+regex_strip = 'mul\(\d+,\d+\)'
 
 for i in range(0, len(do_matches)):
     match = re.findall(regex_strip, do_matches[i])
