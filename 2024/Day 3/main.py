@@ -20,10 +20,10 @@ matches = re.findall(regex_string, text)
 #print(matches)
 
 regex_last_match = "don't\(\).*?do\(\).*"
-regex_last_matches = re.findall(regex_last_match, text)
-print(regex_last_matches[-1])
-_, last_match = regex_last_matches[-1].split('do()')
-print(last_match)
+regex_last_matches = list(re.finditer(regex_last_match, text))
+print(regex_last_matches[-1].group())
+make_txt_file(regex_last_matches[-1].group(), 'last_match.txt', fp.get_current_filepath())
+#print(last_match)
 
 do_matches = []
 

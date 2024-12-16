@@ -32,6 +32,6 @@ def reading_txt_data(filename: str, filepath: str) -> str:
     file_to_read = fh.get_path_of_file(filepath, filename)
 
     file = open(file_to_read, "r", encoding='cp1252')
-    file_content = file.readlines()
+    file_content = file.read()
     file.close()
-    return str(file_content)
+    return file_content

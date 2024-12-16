@@ -12,9 +12,8 @@ INPUT_FILE = 'input_data.txt'
 #make_txt_file(content, INPUT_FILE, fp.get_current_filepath())
 
 text = reading_txt_data('sample_data.txt', fp.get_current_filepath())
-print(text)
+crossword_puzzle = []
+for i in text:
+    crossword_puzzle.append(i.split())
 
-
-cleaned_text = [line.replace('\\n', '') for line in text]
-
-print(cleaned_text)
+print(crossword_puzzle)
