@@ -7,16 +7,12 @@ from filehandler_helper import *
 import filepath as fp
 
 def main() -> None:
-    URL = 'https://adventofcode.com/2024/day/9/input'
-    INPUT_FILE = 'input_data.txt'
-    #content = scrape_input_site(URL)
-    #make_txt_file(content, INPUT_FILE, fp.get_current_filepath())
-
-    disk = reading_txt_data(INPUT_FILE, fp.get_current_filepath())
-    file_compact_string = generate_file_compacting_process(disk)
-    file_compact_list = move_file_blocks(file_compact_string)
-    find_checksum(file_compact_list)
+    INPUT_FILENAME = 'input_data.txt'
+    disk = reading_txt_data('sample_data.txt', fp.get_current_filepath())
+    disk = generate_file_compacting_process(disk)
     
+    find_checksum(disk)
+
 def generate_list_with_disk_info(disk: str) -> list:
     disk = disk.strip('\n')
     list_with_files = []
@@ -42,19 +38,23 @@ def generate_file_compacting_string(disk: str) -> list:
 
 def move_file_blocks(file_compact_list: list) -> list:
     done_with_moving_blocks = False
+    #print(file_compact_list)
+    lookup_table = generate_lookup_table_for_dots(file_compact_list)
 
     while(not done_with_moving_blocks):
-        last_file = file_compact_list[-1]
+        
+        last_queued_files = find_all_same_file_sizes(file_compact_list)
+        print(last_queued_files)
         if '.' in file_compact_list:
             string_to_replace = file_compact_list.index('.')
-            file_compact_list[string_to_replace] = last_file
+            #file_compact_list[string_to_replace] = last_file
             file_compact_list.pop(-1)
         else:
             done_with_moving_blocks = True
 
     return file_compact_list
 
-def generate_file_compacting_process(disk : str) -> str:
+def generate_file_compacting_process(disk : str) -> list:
     file_compact_string = generate_file_compacting_string(disk)
     return move_file_blocks(file_compact_string)
 
@@ -65,7 +65,31 @@ def find_checksum(compact_process : list) -> None:
         checksum += (int(compact_process[i]) * i)
 
     print(checksum)
-    #make_txt_file(str(checksum), 'answer_part_1.txt', fp.get_current_filepath())
+    make_txt_file(str(checksum), 'answer_part_2.txt', fp.get_current_filepath())
+
+def generate_lookup_table_for_dots(disk: list) -> dict:
+    lookup_table = {}
+    amount_of_free_space = 0
+    for i in range(0, len(disk)):
+        if disk[i] == '.':
+            amount_of_free_space += 1
+            if disk[i+1] != '.':
+                lookup_table[i-(amount_of_free_space-1)] = amount_of_free_space
+                amount_of_free_space = 0
+
+    return lookup_table
+
+def find_all_same_file_sizes(disk: list) -> dict:
+    last_file = disk[-1]
+    amount_of_space = 0
+    for i in reversed(range(0, len(disk))):
+        if disk[i] == last_file:
+            amount_of_space += 1
+            print(disk[i])
+            print(disk[i-1])
+            if disk[i-1] != last_file:
+                break
+    return {last_file : amount_of_space}
 
 if __name__ == "__main__":
     main()
