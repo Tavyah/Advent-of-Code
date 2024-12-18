@@ -6,6 +6,8 @@ from web_browser_helper import *
 from filehandler_helper import *
 import filepath as fp
 
+# TO NOT RUN THIS CODE WITHOUT OPTIMAZING FIRST!! ITS SUPER SLOOOOOOOOOOOOOOOW
+
 def main() -> None:
     INPUT_FILENAME = 'input_data.txt'
     disk = reading_txt_data(INPUT_FILENAME, fp.get_current_filepath())
@@ -39,7 +41,7 @@ def move_file_blocks(file_compact_list: list) -> list:
     number_of_files = set(file_compact_list)
     moved = False
     blacklist = []
-
+    
     slice_indices = generate_file_indices(file_compact_list)
 
     for i in reversed(range(0, len(number_of_files)-1)):
@@ -54,7 +56,7 @@ def move_file_blocks(file_compact_list: list) -> list:
                 continue
         except KeyError:
             continue
-        
+
         for j in lookup_table:
             if lookup_table[j] >= last_queued_files[i]:
                 # Move block
@@ -62,6 +64,7 @@ def move_file_blocks(file_compact_list: list) -> list:
                 for k in range(j, j+last_queued_files[i]):
                     file_compact_list[k] = i
                 break
+            
         if moved:    
             slice_list = file_compact_list[slice_index:slice_index + last_queued_files[i]]
             for number in range(0,len(slice_list)):
@@ -81,7 +84,7 @@ def generate_file_compacting_process(disk : str) -> list:
 
 def find_checksum(compact_process : list) -> None:
     checksum = 0
-    
+
     for i in range(0, len(compact_process)):
         if isinstance(compact_process[i], int):
             checksum += (int(compact_process[i]) * i)
@@ -90,11 +93,13 @@ def find_checksum(compact_process : list) -> None:
     make_txt_file(str(checksum), 'answer_part_2.txt', fp.get_current_filepath())
 
 # This function is ridiciliously long and consuming alot of computer power
-def generate_lookup_table_for_dots(disk: list, position : int) -> dict:
+def generate_lookup_table_for_dots(disk: list, stop_position : int) -> dict:
     lookup_table = {}
     amount_of_free_space = 0
-    for i in range(0, len(disk)):
-        if i == position:
+    last_dot_position = find_first_dot_position(disk)
+
+    for i in range(last_dot_position, len(disk)):
+        if i >= stop_position:
             break
         if disk[i] == '.':
             amount_of_free_space += 1
@@ -131,7 +136,13 @@ def generate_file_indices(file_compact_list: list) -> dict:
     unique_indices = set(file_compact_list)
     for i in range(0, len(unique_indices)-1):
         file_indices[i] = file_compact_list.index(i)
-    print(unique_indices)
     return file_indices
+
+def find_first_dot_position(disk: list) -> int:
+    try:
+        return disk.index('.')
+    except ValueError:
+        return 0
+
 if __name__ == "__main__":
     main()
