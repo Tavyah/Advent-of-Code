@@ -38,7 +38,7 @@ def find_total_paths(data: list) -> int:
             break
             
     return total_paths
-
+# TODO
 def check_for_path(data : list, current_position_in_list : list) -> int:
     number_of_paths_found = 0
     next_number = 1

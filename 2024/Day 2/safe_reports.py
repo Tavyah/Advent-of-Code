@@ -1,4 +1,5 @@
 import sys, os
+from collections import Counter
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Modules')))
 
@@ -21,6 +22,13 @@ def main() -> None:
 def get_current_filepath() -> str:
     return os.path.dirname(os.path.realpath(__file__))
 
+def _split_string_to_int_list(string: str) -> list:
+    new_list = []
+    splitted_list = string.split('\n')
+    for each in splitted_list:
+        new_list.append(list(map(int, each.split())))
+    return new_list
+
 def calculate_safe_reports(data_to_analyze: str) -> int:
     safe = 0
     first = True
@@ -30,50 +38,46 @@ def calculate_safe_reports(data_to_analyze: str) -> int:
     amount_of_unique_lists = 0
     qualified_list = 0
     popped_element = False
-
-    for i in data_to_analyze:
+    
+    parsed_list = _split_string_to_int_list(data_to_analyze)
+    
+    for i in parsed_list:
+        print(i)
         lines_analyzed += 1
-        list = i.strip('\n').split(' ')
-        parsed_list = [int(number) for number in list]
-
-        last_index = len(parsed_list) - 1
+        last_index = len(i) - 1
         current_index = -1
 
-        sorted_list = is_list_sorted(parsed_list)
-        unique_list = is_list_unique(parsed_list)
+        sorted_list = is_list_sorted(i)
+        unique_list = is_list_unique(i)
 
+        if sorted_list:
+                amount_of_sorted_lists += 1
+
+        if unique_list:
+                amount_of_unique_lists += 1
+
+        print(f"parsed: {i}")
         if sorted_list and unique_list:
+            print('start')
             qualified_list += 1
-            safe, first, parsed_list, popped_element = check_list_for_differance(parsed_list, last_index, current_index, prev_number, safe, first, popped_element)
-
-        print(f"parsed: {parsed_list}")
-        
-                    
-        if unique_list and not popped_element:
-            amount_of_unique_lists += 1
+            safe, first, i, popped_element = check_list_for_differance(i, last_index, current_index, prev_number, safe, first, popped_element)
         else:
-            duplicate_location = find_location_of_duplicates(parsed_list)
-    
-            if duplicate_location is not None:
-                parsed_list.pop(duplicate_location)
+            if not unique_list and not popped_element:
+                print('duplikat')
+                # TODO når æ finner duplikater så kan den poppe feil duplikat, må teste begge duplikater
+                i = find_location_of_duplicates(i)
+                safe, first, i, popped_element = check_list_for_differance(i, last_index, current_index, prev_number, safe, first, popped_element)
                 popped_element = True
-        
-        if sorted_list and not popped_element:
-            amount_of_sorted_lists += 1
-            safe, first, parsed_list, popped_element = check_list_for_differance(parsed_list, last_index, current_index, prev_number, safe, first, popped_element)
-        else:
-            # Her ska æ sjekke alle de usorterte listene om de e sortert fra et visst element
-            for element in range(0, len(parsed_list)):
-                if rest_of_list_is_sorted(element, parsed_list):
-                    parsed_list.pop(element)
-                    popped_element = True
-                    break
+            elif not sorted_list and not popped_element:
+                print('can sort')
+                i = check_if_can_sort(i)
+                safe, first, i, popped_element = check_list_for_differance(i, last_index, current_index, prev_number, safe, first, popped_element)
+            else:
+                print('else')
+
             
-            safe, first, parsed_list, popped_element = check_list_for_differance(parsed_list, last_index, current_index, prev_number, safe, first, popped_element)
-        
-        
-        print(f"etter: {parsed_list}")
-        print(f"qualified: {unique_list} {sorted_list}")
+            print(f"etter: {i}")
+            print(f"qualified: {unique_list} {sorted_list}")
 
         first = True
         popped_element = False
@@ -98,25 +102,24 @@ def is_list_sorted(list: list) -> bool:
 def is_list_unique(list: list) -> bool:
     return len(list) == len(set(list))
 
-def find_location_of_duplicates(parsed_list: list) -> int:
-    first = True
-    prev_number = 0
-
-    for i in range(0, len(parsed_list)):
-        if first:
-            prev_number = parsed_list[i]
-            first = False
-            continue
-        if prev_number == parsed_list[i]:
-            return i
+def find_location_of_duplicates(list: list) -> list:
+    new_list = list[:]
+    duplicate = [i for i in Counter(list) if Counter(list)[i] > 1]
+    new_list.pop(list.index(duplicate[0]))
+    if is_list_sorted(new_list):
+         return new_list
+    else:
+         last_index = len(list) - 1 - list[::-1].index(duplicate[0])
+         list.pop(last_index)
+         return list
         
-def rest_of_list_is_sorted(element : int, parsed_list : list) -> bool:
-    temp_list = parsed_list[:]
+def rest_of_list_is_sorted(element : int, i : list) -> bool:
+    temp_list = i[:]
     temp_list.pop(element)
     return is_list_sorted(temp_list)
-
-def check_list_for_differance(parsed_list: list, last_index: int, current_index: int, prev_number: int, safe: int, first: bool, popped_elemet: bool) -> int | bool | list | bool:
-    for number in parsed_list:
+# TODO finn ut av denne funksjonen
+def check_list_for_differance(i: list, last_index: int, current_index: int, prev_number: int, safe: int, first: bool, popped_elemet: bool) -> int | bool | list | bool:
+    for number in i:
                 current_index += 1
 
                 if first:
@@ -127,13 +130,24 @@ def check_list_for_differance(parsed_list: list, last_index: int, current_index:
                 diff = calculate_diff(number, prev_number)
                 
                 if diff > 3 or diff < 1:
-                    parsed_list.pop(current_index)
+                    if popped_elemet:
+                        break
+                    else:
+                         i.pop(current_index)
                 else:
                     if last_index == current_index:
                         safe += 1
                         popped_elemet = True
                     prev_number = number
-    return safe, first, parsed_list, popped_elemet
+    return safe, first, i, popped_elemet
+
+def check_if_can_sort(list: list) -> list:
+    # Her ska æ sjekke alle de usorterte listene om de e sortert fra et visst element
+    for element in range(0, len(list)):
+        if rest_of_list_is_sorted(element, list):
+            list.pop(element)
+            break
+    return list
 
 if __name__ == "__main__":
     main()
